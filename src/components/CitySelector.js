@@ -8,14 +8,25 @@ import WeatherCard from "./WeatherCard";
 const CitySelector = props => {
     const [city, setCity] = useState('');
     const [results, setResults] = useState([]);
+    const [data, noData] = useState([]);
 
 
     const onSearch = () => {
         fetch(`${ API_BASE_URL}/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`)
             .then((response) => response.json())
-            .then((result) => setResults(result.list));
-            console.log(results);
+            // .then((result) => console.log(result.list))
+            .then((result) =>
+                    setResults(result.list)
+            )
+        console.log(results);
     };
+
+    const enterPressed = (event) => {
+        var code = event.keyCode || event.which;
+        if(code === 13) {
+            onSearch();
+        }
+    }
 
     return (
         <>
@@ -28,11 +39,7 @@ const CitySelector = props => {
             <Row>
                 {/* xs={4} takes the one third  of the page*/}
                 <Col xs={4} className="text-center">
-                    <FormControl
-                        placeholder="Enter city"
-                        onChange={(event) => setCity(event.target.value)}
-                        value={city}
-                    />
+                    <FormControl placeholder="Enter city" onChange={(event) => setCity(event.target.value)} value={city} onKeyPress={ enterPressed.bind(this) }/>
                 </Col>
             </Row>
             <Row>
@@ -42,18 +49,19 @@ const CitySelector = props => {
             </Row>
 
             <div className="row">
-            {results.map(({dt, main, weather}) => (
+                {!results  ?
+                    <h3>City Not Found</h3>  : results.map(({dt, main, weather}) => (
 
-                <Col md="auto" key={dt}>
-                    <WeatherCard
-                        temp_max={main.temp_max}
-                        temp_min={main.temp_min}
-                        dt={dt * 1000}
-                        main={weather[0].main}
-                        icon={weather[0].icon}
-                    />
-                </Col>
-            ))}
+                    <Col md="auto" key={dt}>
+                        <WeatherCard
+                            temp_max={main.temp_max}
+                            temp_min={main.temp_min}
+                            dt={dt * 1000}
+                            main={weather[0].main}
+                            icon={weather[0].icon}
+                        />
+                    </Col>
+                ))}
 
             </div>
 
